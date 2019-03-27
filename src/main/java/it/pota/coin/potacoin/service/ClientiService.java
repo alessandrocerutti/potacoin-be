@@ -3,7 +3,6 @@ package it.pota.coin.potacoin.service;
 import java.util.ArrayList;
 
 import it.pota.coin.potacoin.dao.ClientiDao;
-import it.pota.coin.potacoin.dto.Buono;
 import it.pota.coin.potacoin.dto.BuonoAssegnato;
 import it.pota.coin.potacoin.dto.Cliente;
 import it.pota.coin.potacoin.dto.Credenziali;

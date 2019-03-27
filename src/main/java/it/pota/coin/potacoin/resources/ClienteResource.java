@@ -14,7 +14,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import it.pota.coin.potacoin.dto.Buono;
-import it.pota.coin.potacoin.dto.Cliente;
 import it.pota.coin.potacoin.dto.Credenziali;
 import it.pota.coin.potacoin.dto.Errore;
 import it.pota.coin.potacoin.dto.Esercente;
