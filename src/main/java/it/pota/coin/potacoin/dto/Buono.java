@@ -3,6 +3,7 @@ package it.pota.coin.potacoin.dto;
 import java.util.Date;
 
 public class Buono {
+	//Dio buono
 	int ID_buono;
 	int ID_esercente;
 	String nome_attivita;
