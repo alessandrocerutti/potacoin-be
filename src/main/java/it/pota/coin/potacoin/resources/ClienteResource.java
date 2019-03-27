@@ -1,5 +1,8 @@
 package it.pota.coin.potacoin.resources;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
@@ -10,18 +13,24 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import it.pota.coin.potacoin.dto.Buono;
 import it.pota.coin.potacoin.dto.Cliente;
 import it.pota.coin.potacoin.dto.Credenziali;
 import it.pota.coin.potacoin.dto.Errore;
+import it.pota.coin.potacoin.dto.Esercente;
 import it.pota.coin.potacoin.exception.DBException;
 import it.pota.coin.potacoin.response.ClienteResponse;
 import it.pota.coin.potacoin.response.RequestCliente;
+import it.pota.coin.potacoin.service.BuonoService;
 import it.pota.coin.potacoin.service.ClientiService;
+import it.pota.coin.potacoin.service.EsercenteService;
 import it.pota.coin.potacoin.util.SecurityUtil;
 
 @Path("cliente")
 public class ClienteResource {
 	private ClientiService cs = new ClientiService();
+	BuonoService bs = new BuonoService();
+	EsercenteService es = new EsercenteService();
 	private String CLIENTE = "c";
 
 	@POST
@@ -138,6 +147,31 @@ public class ClienteResource {
 		}
 
 		return resp;
+	}
+	
+	
+
+	@GET
+    @Path("/all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Esercente> getAllEsercenti() {
+			return es.getAllEsercenti();
+    }
+	
+	@GET
+	@Path("/all")
+	@Produces(MediaType.APPLICATION_JSON)
+	
+	public ArrayList<Buono> getAll() {
+
+		try {
+
+			return bs.getAllBuoni();
+
+		} catch (Exception e) {
+			return null;
+		}
+		
 	}
 	
 }
