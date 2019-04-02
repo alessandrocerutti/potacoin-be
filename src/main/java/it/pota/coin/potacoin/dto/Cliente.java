@@ -64,8 +64,6 @@ public class Cliente {
 	
 	@Override
 	public String toString() {
-		
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		return this.nome + "," + this.cognome + "," + this.cf+ "," +this.citta+ "," +this.punti+ ".";
 	}
 

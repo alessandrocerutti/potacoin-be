@@ -13,7 +13,7 @@ import it.pota.coin.potacoin.util.DBUtil;
 
 public class EsercenteDao {
 	
-	public List<Esercente> selectAllEsercenti() throws DBException {
+	public ArrayList<Esercente> selectAllEsercenti() throws DBException {
 		ArrayList<Esercente> esercenti = new ArrayList<>();
 		
 		StringBuilder sql = new StringBuilder();

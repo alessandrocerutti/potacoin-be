@@ -9,55 +9,11 @@ import java.util.ArrayList;
 import it.pota.coin.potacoin.dto.Buono;
 import it.pota.coin.potacoin.dto.BuonoAssegnato;
 import it.pota.coin.potacoin.dto.Cliente;
+import it.pota.coin.potacoin.dto.Credenziali;
 import it.pota.coin.potacoin.exception.DBException;
 import it.pota.coin.potacoin.util.DBUtil;
 
 public class ClientiDao {
-
-	public String inserimento(Cliente cliente) throws DBException {
-
-		String nome = cliente.getNome();
-		String cognome = "prova";
-		String cf = "";
-		String citta = "Milano";
-		StringBuilder sql = new StringBuilder();
-		System.out.println(nome);
-		sql.append("INSERT INTO TB_CLIENTE (NOME, COGNOME, CF, CITTA)");
-		sql.append(" VALUES(?,?,?,?)");
-
-		Connection connection = null;
-		PreparedStatement pstm = null;
-		try {
-			connection = DBUtil.getConnection();
-			pstm = connection.prepareStatement(sql.toString());
-			pstm.setString(1, nome);
-			pstm.setString(2, cognome);
-			pstm.setString(3, cf);
-			pstm.setString(4, citta);
-			pstm.executeUpdate();
-
-		} catch (Exception e) {
-
-			throw new DBException(e);
-
-		} finally {
-			if (pstm != null) {
-				try {
-					pstm.close();
-				} catch (SQLException e1) {
-					// non faccio nulla
-				}
-			}
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException e1) {
-					// non faccio nulla
-				}
-			}
-		}
-		return "ok";
-	}
 
 	public Cliente getClientefromId(int id) throws DBException {
 		StringBuilder sql = new StringBuilder();
@@ -106,7 +62,7 @@ public class ClientiDao {
 
 	}
 
-	public int autenticazione(String u, String p) throws DBException {
+	public int autenticazione(String u, String p, String em) throws DBException {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ID_user FROM tb_credenziali_cliente");
@@ -207,6 +163,78 @@ public class ClientiDao {
 		}
 		return buoniAssegnati;
 
+	}
+
+	public void registrazione(Cliente cliente, Credenziali cred) throws DBException {
+		String nome = cliente.getNome();
+		String cognome = cliente.getCognome();
+		String cf = cliente.getCf();
+		String citta = cliente.getCitta();
+		
+		String username = cred.getUsername();
+		String password = cred.getPassword();
+		String email = cred.getEmail();
+		System.out.println(cliente.toString() + cred.toString());
+		
+		StringBuilder sql = new StringBuilder();
+		StringBuilder sql2 = new StringBuilder();
+		StringBuilder sql3 = new StringBuilder();
+		sql.append("INSERT INTO tb_cliente(nome, cognome, CF, citta) VALUES ( ?, ?, ?, ?)");
+		
+		System.out.println("query scritta");
+		Connection connection = null;
+		PreparedStatement pstm = null;
+		PreparedStatement pstm2 = null;
+		PreparedStatement pstm3 = null;
+		ResultSet rs2 = null;
+		ResultSet rs3 = null;
+		try {
+			connection = DBUtil.getConnection();
+			pstm = connection.prepareStatement(sql.toString());
+			pstm.setString(1, nome);
+			pstm.setString(2, cognome);
+			pstm.setString(3, cf);
+			pstm.setString(4, citta);
+			pstm.executeUpdate();
+			
+			sql2.append("SELECT LAST_INSERT_ID()");
+			pstm2 = connection.prepareStatement(sql2.toString());
+			rs2 = pstm2.executeQuery();
+			int newId = 0;
+			while(rs2.next()) {
+				newId = rs2.getInt(1);
+			}
+			
+			sql3.append("INSERT INTO tb_credenziali_cliente (ID_user, ID_ruolo, email, username, pw) VALUES ( ?, ?, ?, ?,?)");
+			pstm3 = connection.prepareStatement(sql3.toString());
+			pstm3.setInt(1, newId);
+			pstm3.setInt(2, 2);
+			pstm3.setString(3, email);
+			pstm3.setString(4, username);
+			pstm3.setString(5, password);
+			pstm3.executeUpdate();
+			
+		} catch (Exception e) {
+			System.out.println("errore " + e.getMessage());
+			throw new DBException(e);
+
+		} finally {
+			if (pstm != null) {
+				try {
+					pstm.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+		}
+		
 	}
 
 }
