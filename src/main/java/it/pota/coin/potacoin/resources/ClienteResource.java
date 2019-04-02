@@ -1,8 +1,5 @@
 package it.pota.coin.potacoin.resources;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
@@ -13,12 +10,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import it.pota.coin.potacoin.dto.Buono;
 import it.pota.coin.potacoin.dto.Credenziali;
 import it.pota.coin.potacoin.dto.Errore;
-import it.pota.coin.potacoin.dto.Esercente;
 import it.pota.coin.potacoin.exception.DBException;
 import it.pota.coin.potacoin.response.ClienteResponse;
+import it.pota.coin.potacoin.response.RegistrazioneClienteRequest;
 import it.pota.coin.potacoin.response.RequestCliente;
 import it.pota.coin.potacoin.service.BuonoService;
 import it.pota.coin.potacoin.service.ClientiService;
@@ -36,22 +32,17 @@ public class ClienteResource {
 	@Path("/signup")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public /* Cliente */ String signup(@Context HttpServletRequest req, Credenziali cred) {
-
+	public /* Cliente */ String signup(RegistrazioneClienteRequest req) {
+		Errore er = new Errore();
 		try {
-			int id = cs.isAutenticato(cred);
-			if (cs.isAutenticato(cred) != 0) {
-				return "bigol, sei già iscritto";
-			} else {
-				// TODO implemetare iscrizione
-				return "iscritto";
-			}
-		} catch (DBException e) {
 
-			e.printStackTrace();
+			cs.completaRegistrazione(req.getCliente(), req.getCredenziali());
+
+		} catch (DBException e) {
+			er.setId(2);
+			er.setMsg(e.getMessage());
 		}
 		return null;
-
 	}
 
 	@POST
@@ -87,7 +78,7 @@ public class ClienteResource {
 	@Path("/dati")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClienteResponse getData(@Context HttpServletRequest req, RequestCliente rc) {
+	public ClienteResponse getData(RequestCliente rc) {
 		Errore er = new Errore();
 		ClienteResponse resp = new ClienteResponse();
 		String tkn = rc.getToken();
@@ -106,7 +97,7 @@ public class ClienteResource {
 					er.setMsg(e.getClass().getName());
 					resp.setErrore(er);
 				}
-			}else {
+			} else {
 				er.setId(1);
 				er.setMsg("forbitten");
 				resp.setErrore(er);
@@ -115,12 +106,12 @@ public class ClienteResource {
 
 		return resp;
 	}
-	
+
 	@POST
 	@Path("/mieibuoni")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClienteResponse getBuoniCliente(@Context HttpServletRequest req, RequestCliente rc) {
+	public ClienteResponse getBuoniCliente(RequestCliente rc) {
 		Errore er = new Errore();
 		ClienteResponse resp = new ClienteResponse();
 		String tkn = rc.getToken();
@@ -138,7 +129,7 @@ public class ClienteResource {
 					er.setMsg(e.getClass().getName());
 					resp.setErrore(er);
 				}
-			}else {
+			} else {
 				er.setId(1);
 				er.setMsg("forbitten");
 				resp.setErrore(er);
@@ -147,30 +138,40 @@ public class ClienteResource {
 
 		return resp;
 	}
-	
-	
 
 	@GET
-    @Path("/all")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<Esercente> getAllEsercenti() {
-			return es.getAllEsercenti();
-    }
-	
-	@GET
-	@Path("/all")
+	@Path("/esercenti/all")
 	@Produces(MediaType.APPLICATION_JSON)
-	
-	public ArrayList<Buono> getAll() {
+	public ClienteResponse getAllEsercenti() {
+		ClienteResponse cr = new ClienteResponse();
+		Errore er = new Errore();
 
 		try {
-
-			return bs.getAllBuoni();
-
-		} catch (Exception e) {
-			return null;
+			cr.setEsercenti(es.getAllEsercenti());
+		} catch (DBException e) {
+			er.setId(2);
+			er.setMsg(e.getMessage());
+			cr.setErrore(er);
 		}
-		
+		return cr;
 	}
-	
+
+	@GET
+	@Path("/buoni/all")
+	@Produces(MediaType.APPLICATION_JSON)
+
+	public ClienteResponse getAll() {
+		ClienteResponse cr = new ClienteResponse();
+		Errore er = new Errore();
+
+		try {
+			cr.setBuoni(bs.getAllBuoni());
+		} catch (DBException e) {
+			er.setId(2);
+			er.setMsg(e.getMessage());
+			cr.setErrore(er);
+		}
+		return cr;
+	}
+
 }

@@ -10,13 +10,6 @@ import it.pota.coin.potacoin.exception.DBException;
 
 public class ClientiService {
 private ClientiDao dao = new ClientiDao();
-	
-	public void insert(Cliente cliente) throws DBException {
-		
-		cliente.setNome("prova");
-		
-		dao.inserimento(cliente);
-	}
 
 	public Cliente getDatiCliente(int id) throws DBException {
 		return dao.getClientefromId(id);
@@ -26,11 +19,18 @@ private ClientiDao dao = new ClientiDao();
 	public int isAutenticato(Credenziali cred) throws DBException {
 		String u = cred.getUsername();
 		String p = cred.getPassword();
-		return dao.autenticazione(u,p);
+		String e = cred.getEmail();
+		return dao.autenticazione(u,p,e);
 	}
 
 	public ArrayList<BuonoAssegnato> getBuoniCliente(int id) throws DBException {
 		return dao.getBuoniCliente(id);
+	}
+
+	public void completaRegistrazione(Cliente cliente, Credenziali cred) throws DBException{
+		
+		dao.registrazione(cliente, cred);
+		
 	}
 
 }
