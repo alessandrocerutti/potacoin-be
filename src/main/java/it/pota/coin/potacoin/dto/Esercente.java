@@ -7,7 +7,8 @@ public class Esercente {
 	private String indirizzo;
 	private String coordinate;
 	private String p_iva;
-
+	private String numero_telefono;
+	
 	public Esercente() {
 		super();
 	}
@@ -60,6 +61,15 @@ public class Esercente {
 		this.p_iva = p_iva;
 	}
 
+	
+
+	public String getNumero_telefono() {
+		return numero_telefono;
+	}
+
+	public void setNumero_telefono(String numero_telefono) {
+		this.numero_telefono = numero_telefono;
+	}
 	@Override
 	public String toString() {
 		return "Esercente [id=" + id + ", tipo_esercente=" + tipo_esercente + ", nome_attivita=" + nome_attivita
