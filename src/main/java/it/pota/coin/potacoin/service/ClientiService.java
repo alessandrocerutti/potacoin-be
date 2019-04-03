@@ -6,6 +6,7 @@ import it.pota.coin.potacoin.dao.ClientiDao;
 import it.pota.coin.potacoin.dto.BuonoAssegnato;
 import it.pota.coin.potacoin.dto.Cliente;
 import it.pota.coin.potacoin.dto.Credenziali;
+import it.pota.coin.potacoin.dto.Errore;
 import it.pota.coin.potacoin.exception.DBException;
 
 public class ClientiService {
@@ -31,6 +32,27 @@ private ClientiDao dao = new ClientiDao();
 		
 		dao.registrazione(cliente, cred);
 		
+	}
+
+	public Errore isRegistrato(String email, String username) throws DBException {
+		Errore er = new Errore();
+		// 0 --> OK
+		// 1 --> account già presente
+		// 2 --> username già in uso
+
+		int esitoControllo = dao.controlloRegistrazione(email, username);
+
+		if (esitoControllo == 0) {
+			return null;
+		} else if (esitoControllo == 1) {
+			er.setId(101);
+			er.setMsg("email già utilizzata");
+			return er;
+		} else {
+			er.setId(102);
+			er.setMsg("username già in uso");
+			return er;
+		}
 	}
 
 }
