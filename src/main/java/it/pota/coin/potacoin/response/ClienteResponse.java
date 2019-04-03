@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import it.pota.coin.potacoin.dto.Buono;
 import it.pota.coin.potacoin.dto.BuonoAssegnato;
 import it.pota.coin.potacoin.dto.Cliente;
+import it.pota.coin.potacoin.dto.Errore;
 import it.pota.coin.potacoin.dto.Esercente;
 
 public class ClienteResponse extends AbstractResponse {
@@ -57,5 +58,6 @@ public class ClienteResponse extends AbstractResponse {
 	public void setEsercenti(ArrayList<Esercente> esercenti) {
 		this.esercenti = esercenti;
 	}
+
 	
 }
