@@ -166,14 +166,7 @@ public class ClientiDao {
 	}
 
 	public void registrazione(Cliente cliente, Credenziali cred) throws DBException {
-		String nome = cliente.getNome();
-		String cognome = cliente.getCognome();
-		String cf = cliente.getCf();
-		String citta = cliente.getCitta();
 		
-		String username = cred.getUsername();
-		String password = cred.getPassword();
-		String email = cred.getEmail();
 		System.out.println(cliente.toString() + cred.toString());
 		
 		StringBuilder sql = new StringBuilder();
@@ -187,14 +180,13 @@ public class ClientiDao {
 		PreparedStatement pstm2 = null;
 		PreparedStatement pstm3 = null;
 		ResultSet rs2 = null;
-		ResultSet rs3 = null;
 		try {
 			connection = DBUtil.getConnection();
 			pstm = connection.prepareStatement(sql.toString());
-			pstm.setString(1, nome);
-			pstm.setString(2, cognome);
-			pstm.setString(3, cf);
-			pstm.setString(4, citta);
+			pstm.setString(1, cliente.getNome());
+			pstm.setString(2, cliente.getCognome());
+			pstm.setString(3, cliente.getCf());
+			pstm.setString(4, cliente.getCitta());
 			pstm.executeUpdate();
 			
 			sql2.append("SELECT LAST_INSERT_ID()");
@@ -208,10 +200,10 @@ public class ClientiDao {
 			sql3.append("INSERT INTO tb_credenziali_cliente (ID_user, ID_ruolo, email, username, pw) VALUES ( ?, ?, ?, ?,?)");
 			pstm3 = connection.prepareStatement(sql3.toString());
 			pstm3.setInt(1, newId);
-			pstm3.setInt(2, 2);
-			pstm3.setString(3, email);
-			pstm3.setString(4, username);
-			pstm3.setString(5, password);
+			pstm3.setInt(2, 3);
+			pstm3.setString(3, cred.getEmail());
+			pstm3.setString(4, cred.getUsername());
+			pstm3.setString(5, cred.getPassword());
 			pstm3.executeUpdate();
 			
 		} catch (Exception e) {
@@ -235,6 +227,104 @@ public class ClientiDao {
 			}
 		}
 		
+	}
+
+	public int controlloRegistrazione(String email, String username) throws DBException {
+		if (controlloEmail(email)) {
+			return 1;
+		}else if (controlloUsername(username)) {
+			return 2;
+		}else {
+			return 0;
+		}
+	}
+
+	private boolean controlloUsername(String username) throws DBException {
+		
+		Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+
+		boolean usernameTrovata = false;
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID_user FROM tb_credenziali_cliente ");
+		sql.append("WHERE username = ?");
+
+		try {
+			connection = DBUtil.getConnection();
+			pstm = connection.prepareStatement(sql.toString());
+			pstm.setString(1, username);
+			rs = pstm.executeQuery();
+
+			if (rs.next() == true) {
+				usernameTrovata = true;
+			}
+
+		} catch (Exception e) {
+			throw new DBException(e);
+		} finally {
+			if (pstm != null) {
+				try {
+					pstm.close();
+				} catch (SQLException e1) {
+					
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					
+				}
+			}
+		}
+
+		return usernameTrovata;
+	}
+
+	private boolean controlloEmail(String email) throws DBException {
+		Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+
+		boolean emailTrovata = false;
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID_user FROM tb_credenziali_cliente ");
+		sql.append("WHERE email = ?");
+
+		try {
+			connection = DBUtil.getConnection();
+			pstm = connection.prepareStatement(sql.toString());
+			pstm.setString(1, email);
+			rs = pstm.executeQuery();
+
+			if (rs.next() == true) {
+				emailTrovata = true;
+			}
+
+		} catch (Exception e) {
+			throw new DBException(e);
+		} finally {
+			if (pstm != null) {
+				try {
+					pstm.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+		}
+
+		return emailTrovata;
+
 	}
 
 }

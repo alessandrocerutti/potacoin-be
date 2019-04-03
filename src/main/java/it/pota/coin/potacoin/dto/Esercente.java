@@ -2,6 +2,7 @@ package it.pota.coin.potacoin.dto;
 
 public class Esercente {
 	private int id;
+	private int id_tipo_esercente;
 	private String tipo_esercente;
 	private String nome_attivita;
 	private String indirizzo;
@@ -70,6 +71,16 @@ public class Esercente {
 	public void setNumero_telefono(String numero_telefono) {
 		this.numero_telefono = numero_telefono;
 	}
+	
+	
+	public int getId_tipo_esercente() {
+		return id_tipo_esercente;
+	}
+
+	public void setId_tipo_esercente(int id_tipo_esercente) {
+		this.id_tipo_esercente = id_tipo_esercente;
+	}
+
 	@Override
 	public String toString() {
 		return "Esercente [id=" + id + ", tipo_esercente=" + tipo_esercente + ", nome_attivita=" + nome_attivita
