@@ -25,12 +25,12 @@ public class ClientiDao {
 		try {
 			connection = DBUtil.getConnection();
 			pstm = connection.prepareStatement(sql.toString());
-			
+
 			pstm.setInt(1, id);
-			
+
 			rs = pstm.executeQuery();
-			
-			if (rs.next()==true) {
+
+			if (rs.next() == true) {
 				c.setId(rs.getInt("ID_cliente"));
 				c.setNome(rs.getString("nome"));
 				c.setCf(rs.getString("CF"));
@@ -106,10 +106,11 @@ public class ClientiDao {
 
 	}
 
-	public ArrayList<BuonoAssegnato> getBuoniCliente(int id) throws DBException{
+	public ArrayList<BuonoAssegnato> getBuoniCliente(int id) throws DBException {
 		ArrayList<BuonoAssegnato> buoniAssegnati = new ArrayList<>();
 		StringBuilder sql = new StringBuilder();
-		sql.append("select buono.ID_buono, esr.ID_esercente,nome_attivita, buono.descrizione as descrizione, scadenza,costo_punti, giacenza, scadenza_assoluta, ID_buono_assegnato, ID_cliente, data_assegnazione,data_scadenza from tb_buono as buono Inner join tb_tipo_buono as tbuono on buono.ID_tipo_buono = tbuono.ID_tipo_buono Inner join tb_buono_assegnato as buonoa on buonoa.ID_buono = buono.ID_buono Inner join tb_esercente as esr on esr.ID_esercente = buono.ID_esercente where buonoa.ID_cliente = ?");
+		sql.append(
+				"select buono.ID_buono, esr.ID_esercente,nome_attivita, buono.descrizione as descrizione, scadenza,costo_punti, giacenza, scadenza_assoluta, ID_buono_assegnato, ID_cliente, data_assegnazione,data_scadenza from tb_buono as buono Inner join tb_tipo_buono as tbuono on buono.ID_tipo_buono = tbuono.ID_tipo_buono Inner join tb_buono_assegnato as buonoa on buonoa.ID_buono = buono.ID_buono Inner join tb_esercente as esr on esr.ID_esercente = buono.ID_esercente where buonoa.ID_cliente = ?");
 
 		Connection connection = null;
 		PreparedStatement pstm = null;
@@ -137,7 +138,7 @@ public class ClientiDao {
 				b.setScadenza_assoluta(rs.getDate("scadenza_assoluta"));
 				b.setTipo_buono(rs.getString("tipo_buono"));
 				b.setUsato(rs.getBoolean("usato"));
-				
+
 				buoniAssegnati.add(b);
 			}
 
@@ -166,14 +167,14 @@ public class ClientiDao {
 	}
 
 	public void registrazione(Cliente cliente, Credenziali cred) throws DBException {
-		
+
 		System.out.println(cliente.toString() + cred.toString());
-		
+
 		StringBuilder sql = new StringBuilder();
 		StringBuilder sql2 = new StringBuilder();
 		StringBuilder sql3 = new StringBuilder();
 		sql.append("INSERT INTO tb_cliente(nome, cognome, CF, citta) VALUES ( ?, ?, ?, ?)");
-		
+
 		System.out.println("query scritta");
 		Connection connection = null;
 		PreparedStatement pstm = null;
@@ -188,16 +189,17 @@ public class ClientiDao {
 			pstm.setString(3, cliente.getCf());
 			pstm.setString(4, cliente.getCitta());
 			pstm.executeUpdate();
-			
+
 			sql2.append("SELECT LAST_INSERT_ID()");
 			pstm2 = connection.prepareStatement(sql2.toString());
 			rs2 = pstm2.executeQuery();
 			int newId = 0;
-			while(rs2.next()) {
+			while (rs2.next()) {
 				newId = rs2.getInt(1);
 			}
-			
-			sql3.append("INSERT INTO tb_credenziali_cliente (ID_user, ID_ruolo, email, username, pw) VALUES ( ?, ?, ?, ?,?)");
+
+			sql3.append(
+					"INSERT INTO tb_credenziali_cliente (ID_user, ID_ruolo, email, username, pw) VALUES ( ?, ?, ?, ?,?)");
 			pstm3 = connection.prepareStatement(sql3.toString());
 			pstm3.setInt(1, newId);
 			pstm3.setInt(2, 3);
@@ -205,7 +207,7 @@ public class ClientiDao {
 			pstm3.setString(4, cred.getUsername());
 			pstm3.setString(5, cred.getPassword());
 			pstm3.executeUpdate();
-			
+
 		} catch (Exception e) {
 			System.out.println("errore " + e.getMessage());
 			throw new DBException(e);
@@ -226,21 +228,21 @@ public class ClientiDao {
 				}
 			}
 		}
-		
+
 	}
 
 	public int controlloRegistrazione(String email, String username) throws DBException {
 		if (controlloEmail(email)) {
 			return 1;
-		}else if (controlloUsername(username)) {
+		} else if (controlloUsername(username)) {
 			return 2;
-		}else {
+		} else {
 			return 0;
 		}
 	}
 
 	private boolean controlloUsername(String username) throws DBException {
-		
+
 		Connection connection = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
@@ -268,14 +270,14 @@ public class ClientiDao {
 				try {
 					pstm.close();
 				} catch (SQLException e1) {
-					
+
 				}
 			}
 			if (connection != null) {
 				try {
 					connection.close();
 				} catch (SQLException e1) {
-					
+
 				}
 			}
 		}
@@ -324,6 +326,105 @@ public class ClientiDao {
 		}
 
 		return emailTrovata;
+
+	}
+
+	public ArrayList<Buono> buoniPreferiti(int id) throws DBException {
+		
+		ArrayList<Buono> buoniPrefe = new ArrayList<>();
+		StringBuilder sql = new StringBuilder();
+		sql.append(
+				"select buon.costo_punti, buon.descrizione as descrizioneb, buon.giacenza,buon.ID_buono, buon.ID_esercente, buon.ID_buono, eserc.nome_attivita, buon.scadenza, buon.scadenza_assoluta, tbuono.descrizione as tipo_buono from tb_buono buon inner join tb_buoni_preferiti as pref on pref.ID_buono = buon.ID_buono inner join tb_cliente as cli on pref.ID_cliente = cli.ID_cliente inner join tb_tipo_buono as tbuono on tbuono.id_tipo_buono = buon.ID_tipo_buono inner join tb_esercente as eserc on eserc.id_Esercente = buon.id_esercente where pref.ID_cliente = ?"
+				);
+				
+				Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		try {
+			connection = DBUtil.getConnection();
+			pstm = connection.prepareStatement(sql.toString());
+			pstm.setInt(1, id);
+			rs = pstm.executeQuery();
+			System.out.println(rs);
+			while (rs.next()) {
+				Buono b = new Buono();
+				
+				b.setCosto_punti(rs.getInt("costo_punti"));
+				b.setDescrizione(rs.getString("descrizioneb"));
+				b.setGiacenza(rs.getInt("giacenza"));
+				b.setID_buono(rs.getInt("ID_buono"));
+				b.setID_esercente(rs.getInt("ID_esercente"));
+				b.setNome_attivita(rs.getString("nome_attivita"));
+				b.setScadenza(rs.getInt("scadenza"));
+				b.setScadenza_assoluta(rs.getDate("scadenza_assoluta"));
+				b.setTipo_buono(rs.getString("tipo_buono"));
+
+				buoniPrefe.add(b);
+			}
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			throw new DBException(e);
+
+		} finally {
+			if (pstm != null) {
+				try {
+					pstm.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+		}
+		return buoniPrefe;
+	}
+
+	public void setBuonoPreferito(int id, int id_Buono) throws DBException {
+		System.out.println("Sono alla fine. il buono ha id= " + id_Buono);
+
+		StringBuilder sql = new StringBuilder();
+	
+		sql.append("INSERT INTO tb_buoni_preferiti(ID_buono, ID_cliente) VALUES ( ?, ?)");
+
+		Connection connection = null;
+		PreparedStatement pstm = null;
+		try {
+			connection = DBUtil.getConnection();
+			pstm = connection.prepareStatement(sql.toString());
+			
+			pstm.setInt(1,id_Buono);
+			pstm.setInt(2,id);
+			
+			pstm.executeUpdate();
+
+		
+
+		} catch (Exception e) {
+			System.out.println("errore " + e.getMessage());
+			throw new DBException(e);
+
+		} finally {
+			if (pstm != null) {
+				try {
+					pstm.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+		}
 
 	}
 

@@ -1,5 +1,7 @@
 package it.pota.coin.potacoin.dto;
 
+import java.sql.Blob;
+
 public class Esercente {
 	private int id;
 	private int id_tipo_esercente;
@@ -9,6 +11,7 @@ public class Esercente {
 	private String coordinate;
 	private String p_iva;
 	private String numero_telefono;
+	private String icona;
 	
 	public Esercente() {
 		super();
@@ -85,6 +88,14 @@ public class Esercente {
 	public String toString() {
 		return "Esercente [id=" + id + ", tipo_esercente=" + tipo_esercente + ", nome_attivita=" + nome_attivita
 				+ ", indirizzo=" + indirizzo + ", coordinate=" + coordinate + ", p_iva=" + p_iva + "]";
+	}
+
+	public String getIcona() {
+		return icona;
+	}
+
+	public void setIcona(String icona) {
+		this.icona = icona;
 	}
 
 }

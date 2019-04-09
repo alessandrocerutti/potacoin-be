@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.pota.coin.potacoin.dao.EsercenteDao;
+import it.pota.coin.potacoin.dto.Buono;
+import it.pota.coin.potacoin.dto.BuonoAssegnato;
 import it.pota.coin.potacoin.dto.Cliente;
 import it.pota.coin.potacoin.dto.Credenziali;
 import it.pota.coin.potacoin.dto.Errore;
@@ -55,6 +57,15 @@ public class EsercenteService {
 	public void completaRegistrazione(Esercente esercente, Credenziali credenziali)throws DBException {
 		ed.registrazione(esercente,credenziali );
 		
+	}
+
+	public ArrayList<BuonoAssegnato> trovaBuoniAssegnati(int id) throws DBException {
+
+		return ed.ricercaBuoniAssegnati(id);
+	}
+
+	public ArrayList<Buono> trovaAllBuoni(int id) throws DBException {
+		return ed.trovaAllBuoni(id);
 	}
 
 }

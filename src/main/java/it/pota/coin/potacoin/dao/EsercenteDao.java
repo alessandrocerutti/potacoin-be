@@ -1,12 +1,15 @@
 package it.pota.coin.potacoin.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.pota.coin.potacoin.dto.Buono;
+import it.pota.coin.potacoin.dto.BuonoAssegnato;
 import it.pota.coin.potacoin.dto.Credenziali;
 import it.pota.coin.potacoin.dto.Esercente;
 import it.pota.coin.potacoin.exception.DBException;
@@ -65,9 +68,7 @@ public class EsercenteDao {
 		System.out.println("lista esercenti: "+esercenti);
 		return esercenti;
 	}
-	
-	
-	
+
 	public int autenticazione(String u, String p) throws DBException {
 
 		StringBuilder sql = new StringBuilder();
@@ -346,5 +347,189 @@ public class EsercenteDao {
 		}
 		
 	}
+	
+	
+	public void aggiungiBuono(Buono pacchettoBuoni) {
 
+		Connection connection = null;
+		PreparedStatement pstm = null;
+		PreparedStatement pstm2 = null;
+		ResultSet rs = null;
+
+		System.out.println("Sono in aggiugiBuono esercente");
+
+		StringBuilder sql = new StringBuilder();
+		StringBuilder sql2 = new StringBuilder();
+
+		sql.append(
+				"INSERT INTO tb_buono(ID_esercente, ID_tipo_buono, descrizione, scadenza, costo_punti, giacenza,scadenza_assoluta) VALUES ( ?, ?, ?, ?,?,?,?)");
+
+		try {
+			connection = DBUtil.getConnection();
+			pstm = connection.prepareStatement(sql.toString());
+
+			System.out.println(pacchettoBuoni);
+
+			pstm.setInt(1, pacchettoBuoni.getID_esercente());
+			pstm.setInt(2, pacchettoBuoni.getID_tipo_buono());
+			pstm.setString(3, pacchettoBuoni.getDescrizione());
+			pstm.setInt(4, pacchettoBuoni.getScadenza());
+			pstm.setInt(5, pacchettoBuoni.getCosto_punti());
+			pstm.setInt(6, pacchettoBuoni.getGiacenza());
+			pstm.setDate(7, (Date) pacchettoBuoni.getScadenza_assoluta());
+			pstm.executeUpdate();
+
+			sql2.append("SELECT LAST_INSERT_ID()");
+			pstm2 = connection.prepareStatement(sql.toString());
+			rs = pstm2.executeQuery();
+
+			int newId = 0;
+			if (rs.next()) {
+				newId = rs.getInt(1);
+				// pacchettoBuoni.setID_buono(newId);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			if (pstm != null) {
+				try {
+					pstm.close();
+				} catch (SQLException e1) {
+					System.out.println(e1);
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					
+				}
+			}
+		}
+
+	}
+
+	public ArrayList<BuonoAssegnato> ricercaBuoniAssegnati(int id) throws DBException {
+		Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		StringBuilder sql = new StringBuilder();
+		ArrayList<BuonoAssegnato> buoniAssegnati = new ArrayList<>();
+
+		sql.append("SELECT * FROM tb_buono_assegnato as t INNER JOIN tb_buono as t1 ON t.ID_buono = t1.ID_buono");
+		sql.append(" WHERE t1.ID_esercente = ?");
+
+		try {
+			connection = DBUtil.getConnection();
+			pstm = connection.prepareStatement(sql.toString());
+			pstm.setInt(1, id);
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+				BuonoAssegnato buono = new BuonoAssegnato();
+
+				buono.setID_buono_assegnato(rs.getInt("ID_buono_assegnato"));
+				//buono.setID_Cliente(rs.getInt("ID_cliente"));
+				buono.setData_assegnazione(rs.getDate("data_assegnazione"));
+
+				boolean usato = rs.getInt("usato") == 0 ? false : true;
+
+				buono.setUsato(usato);
+				buono.setData_scadenza(rs.getDate("data_scadenza"));
+				buono.setID_buono(rs.getInt("ID_buono"));
+				buono.setID_tipo_buono(rs.getInt("ID_tipo_buono"));
+				buono.setCosto_punti(rs.getInt("costo_punti"));
+				buono.setScadenza(rs.getInt("scadenza"));
+				buono.setDescrizione(rs.getString("descrizione"));
+
+				buoniAssegnati.add(buono);
+
+				// System.out.println(buono);
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("errore " + e.getMessage());
+			throw new DBException(e);
+		} finally {
+			if (pstm != null) {
+				try {
+					pstm.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+		}
+
+		return buoniAssegnati;
+	}
+
+	public ArrayList<Buono> trovaAllBuoni(int id) throws DBException {
+		Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		StringBuilder sql = new StringBuilder();
+		ArrayList<Buono> buoniInseriti = new ArrayList<>();
+
+		sql.append("SELECT * FROM tb_buono");
+		sql.append(" WHERE ID_esercente = ?");
+
+		try {
+			connection = DBUtil.getConnection();
+			pstm = connection.prepareStatement(sql.toString());
+			pstm.setInt(1, id);
+			rs = pstm.executeQuery();
+
+			while (rs.next()) {
+				
+				System.out.println(rs);
+
+				Buono b = new Buono();
+				b.setID_buono(rs.getInt("ID_buono"));
+				b.setCosto_punti(rs.getInt("costo_punti"));
+				b.setDescrizione(rs.getString("descrizione"));
+				//b.setTipo_buono(rs.getString("tipo_buono"));
+				b.setGiacenza(rs.getInt("giacenza"));
+				//b.setID_esercente(rs.getInt("ID_esercente"));
+				//b.setNome_attivita(rs.getString("nome_attivita"));
+				b.setScadenza(rs.getInt("scadenza"));
+				b.setScadenza_assoluta((Date) rs.getDate("scadenza_assoluta"));
+				
+				buoniInseriti.add(b);
+
+				// System.out.println(buono);
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("errore " + e.getMessage());
+			throw new DBException(e);
+		} finally {
+			if (pstm != null) {
+				try {
+					pstm.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+		}
+
+		return buoniInseriti;
+	}
+
+	
 }
