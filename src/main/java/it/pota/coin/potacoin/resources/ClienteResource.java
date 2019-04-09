@@ -93,27 +93,31 @@ public class ClienteResource {
 	@Path("/login")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response login(@Context HttpServletRequest req, Credenziali cred) {
+	public Response login(Credenziali cred) {
+		System.out.println("chiamata a login cliente effettuata");
 		Errore er = new Errore();
 		ClienteResponse cr = new ClienteResponse();
-		HttpSession session = req.getSession(true);
-		try {
-			int id = cs.isAutenticato(cred);
-			if (cs.isAutenticato(cred) != 0) {
-
-				cr.setToken(SecurityUtil.prepareToken(Integer.toString(id), CLIENTE));
-				cr.setCliente(cs.getDatiCliente(id));
-			} else {
-				er.setMsg("email o password errati");
-				er.setId(1);
-				cr.setErrore(er);
-				session.invalidate();
-			}
-		} catch (DBException e) {
-			er.setId(2);
-			er.setMsg(e.getMessage());
+		if(cred == null) {
+			er.setMsg("dati inseriti non validi");
+			er.setId(1);
 			cr.setErrore(er);
-		}
+		}else
+			try {
+				int id = cs.isAutenticato(cred);
+				if (cs.isAutenticato(cred) != 0) {
+	
+					cr.setToken(SecurityUtil.prepareToken(Integer.toString(id), CLIENTE));
+					cr.setCliente(cs.getDatiCliente(id));
+				} else {
+					er.setMsg("email o password errati");
+					er.setId(1);
+					cr.setErrore(er);
+				}
+			} catch (DBException e) {
+				er.setId(2);
+				er.setMsg(e.getMessage());
+				cr.setErrore(er);
+			}
 		return Response.ok(cr).header("Access-Control-Allow-Origin", "*").build();
 
 	}
@@ -217,6 +221,72 @@ public class ClienteResource {
 		}
 		return Response.ok(cr).header("Access-Control-Allow-Origin", "*").build();
 	}
+	
+	@POST
+	@Path("/buonipreferiti")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response getBuoniPrefe(RequestCliente rc) {
+		Errore er = new Errore();
+		ClienteResponse cr = new ClienteResponse();
+		String tkn = rc.getToken();
+		if ("".equals(tkn)) {
+			er.setId(1);
+			er.setMsg("forbitten");
+			cr.setErrore(er);
+		} else {
+			if (SecurityUtil.controllaToken(tkn)) {
+				int id = SecurityUtil.getTokenBody(tkn);
+				try {
+					cr.setBuonipreferiti(cs.getPreferiti(id));
+				} catch (DBException e) {
+					er.setId(2);
+					er.setMsg(e.getClass().getName());
+					cr.setErrore(er);
+				}
+			} else {
+				er.setId(1);
+				er.setMsg("forbitten");
+				cr.setErrore(er);
+			}
+		}
+
+		return Response.ok(cr).header("Access-Control-Allow-Origin", "*").build();
+	}
+	
+	@POST
+	@Path("/aggiungibuonopreferito")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addBuonoaPreferito(RequestCliente rc) {
+		Errore er = new Errore();
+		ClienteResponse cr = new ClienteResponse();
+		String tkn = rc.getToken();
+		if ("".equals(tkn)) {
+			er.setId(1);
+			er.setMsg("forbitten");
+			cr.setErrore(er);
+		} else {
+			if (SecurityUtil.controllaToken(tkn)) {
+				int id = SecurityUtil.getTokenBody(tkn);
+				System.out.println("buono: "+ rc.getID_buono_preferito());
+				try {
+					cs.setBuonoPreferito(id, rc.getID_buono_preferito());
+				} catch (DBException e) {
+					er.setId(2);
+					er.setMsg(e.getMessage());
+					cr.setErrore(er);
+				}
+			} else {
+				er.setId(1);
+				er.setMsg("forbitten");
+				cr.setErrore(er);
+			}
+		}
+
+		return Response.ok(cr).header("Access-Control-Allow-Origin", "*").build();
+	}
+	
 	
 	
 

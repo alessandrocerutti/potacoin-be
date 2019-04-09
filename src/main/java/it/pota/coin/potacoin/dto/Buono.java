@@ -7,6 +7,7 @@ public class Buono {
 	int ID_buono;
 	int ID_esercente;
 	String nome_attivita;
+	private int ID_tipo_buono;
 	String tipo_buono;
 	String descrizione;
 	int scadenza;
@@ -97,6 +98,14 @@ public class Buono {
 				+ ", tipo_buono=" + tipo_buono + ", descrizione=" + descrizione + ", scadenza=" + scadenza
 				+ ", costo_punti=" + costo_punti + ", giacenza=" + giacenza + ", scadenza_assoluta=" + scadenza_assoluta
 				+ "]";
+	}
+
+	public int getID_tipo_buono() {
+		return ID_tipo_buono;
+	}
+
+	public void setID_tipo_buono(int iD_tipo_buono) {
+		ID_tipo_buono = iD_tipo_buono;
 	}
 	
 	
