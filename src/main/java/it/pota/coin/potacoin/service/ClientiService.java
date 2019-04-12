@@ -57,8 +57,20 @@ public class ClientiService {
 	}
 
 	public void setBuonoPreferito(int id, int id_Buono) throws DBException {
-		dao.setBuonoPreferito(id, id_Buono);
+		if (isBuonoPreferito(id, id_Buono)) {
+			dao.removeBuonoPreferito(id, id_Buono);
+		} else {
+			dao.setBuonoPreferito(id, id_Buono);
+		}
 
+	}
+
+	public boolean isBuonoPreferito(int id, int id_Buono) throws DBException {
+		int id_trovato = dao.isBuonoPreferito(id, id_Buono);
+		if (id_trovato == 0) {
+			return false;
+		} else
+			return true;
 	}
 
 }

@@ -1,25 +1,20 @@
 package it.pota.coin.potacoin.resources;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import it.pota.coin.potacoin.dto.Cliente;
 import it.pota.coin.potacoin.dto.Credenziali;
 import it.pota.coin.potacoin.dto.Errore;
-import it.pota.coin.potacoin.dto.Esercente;
 import it.pota.coin.potacoin.exception.DBException;
 import it.pota.coin.potacoin.response.ClienteResponse;
 import it.pota.coin.potacoin.response.EsercenteResponse;
 import it.pota.coin.potacoin.response.RegistrazioneClienteRequest;
-import it.pota.coin.potacoin.response.RegistrazioneEsercenteRequest;
 import it.pota.coin.potacoin.response.RequestCliente;
 import it.pota.coin.potacoin.service.BuonoService;
 import it.pota.coin.potacoin.service.ClientiService;
@@ -255,7 +250,7 @@ public class ClienteResource {
 	}
 	
 	@POST
-	@Path("/aggiungibuonopreferito")
+	@Path("/togglebuonopreferito")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addBuonoaPreferito(RequestCliente rc) {
@@ -269,9 +264,10 @@ public class ClienteResource {
 		} else {
 			if (SecurityUtil.controllaToken(tkn)) {
 				int id = SecurityUtil.getTokenBody(tkn);
-				System.out.println("buono: "+ rc.getID_buono_preferito());
+				
 				try {
 					cs.setBuonoPreferito(id, rc.getID_buono_preferito());
+				
 				} catch (DBException e) {
 					er.setId(2);
 					er.setMsg(e.getMessage());

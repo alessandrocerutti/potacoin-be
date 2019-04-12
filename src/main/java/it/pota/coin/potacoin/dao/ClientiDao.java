@@ -110,7 +110,7 @@ public class ClientiDao {
 		ArrayList<BuonoAssegnato> buoniAssegnati = new ArrayList<>();
 		StringBuilder sql = new StringBuilder();
 		sql.append(
-				"select buono.ID_buono, esr.ID_esercente,nome_attivita, buono.descrizione as descrizione, scadenza,costo_punti, giacenza, scadenza_assoluta, ID_buono_assegnato, ID_cliente, data_assegnazione,data_scadenza from tb_buono as buono Inner join tb_tipo_buono as tbuono on buono.ID_tipo_buono = tbuono.ID_tipo_buono Inner join tb_buono_assegnato as buonoa on buonoa.ID_buono = buono.ID_buono Inner join tb_esercente as esr on esr.ID_esercente = buono.ID_esercente where buonoa.ID_cliente = ?");
+				"select buono.ID_buono, esr.ID_esercente,nome_attivita, tbuono.descrizione as tipo_buono, buono.descrizione as descrizione, scadenza,costo_punti, giacenza, scadenza_assoluta, ID_buono_assegnato, usato, ID_cliente, data_assegnazione,data_scadenza from tb_buono as buono Inner join tb_tipo_buono as tbuono on buono.ID_tipo_buono = tbuono.ID_tipo_buono Inner join tb_buono_assegnato as buonoa on buonoa.ID_buono = buono.ID_buono Inner join tb_esercente as esr on esr.ID_esercente = buono.ID_esercente where buonoa.ID_cliente = ?");
 
 		Connection connection = null;
 		PreparedStatement pstm = null;
@@ -143,7 +143,7 @@ public class ClientiDao {
 			}
 
 		} catch (Exception e) {
-
+			System.out.println(e);
 			throw new DBException(e);
 
 		} finally {
@@ -403,8 +403,6 @@ public class ClientiDao {
 			
 			pstm.executeUpdate();
 
-		
-
 		} catch (Exception e) {
 			System.out.println("errore " + e.getMessage());
 			throw new DBException(e);
@@ -426,6 +424,91 @@ public class ClientiDao {
 			}
 		}
 
+	}
+
+	public int isBuonoPreferito(int id, int id_Buono) throws DBException {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ID_Preferiti, ID_cliente, ID_Buono FROM tb_buoni_preferiti WHERE ID_cliente=? AND ID_Buono=?");
+		Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		try {
+			connection = DBUtil.getConnection();
+			pstm = connection.prepareStatement(sql.toString());
+			
+			pstm.setInt(1, id);
+			pstm.setInt(2, id_Buono);
+
+			rs = pstm.executeQuery();
+			
+			if (rs.next()) {
+				
+				return rs.getInt("ID_Preferiti");
+			}
+
+		} catch (Exception e) {
+
+			throw new DBException(e);
+
+		} finally {
+			if (pstm != null) {
+				try {
+					pstm.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	public void removeBuonoPreferito(int id, int id_Buono) throws DBException {
+		System.out.println("Sono alla fine. il buono ha id= " + id_Buono);
+
+		StringBuilder sql = new StringBuilder();
+	
+		sql.append("DELETE FROM `tb_buoni_preferiti` WHERE `ID_cliente`=? AND `ID_Buono` = ?");
+
+		Connection connection = null;
+		PreparedStatement pstm = null;
+		try {
+			connection = DBUtil.getConnection();
+			pstm = connection.prepareStatement(sql.toString());
+			
+			pstm.setInt(1,id_Buono);
+			pstm.setInt(2,id);
+			
+			pstm.executeUpdate();
+
+		} catch (Exception e) {
+			System.out.println("errore " + e.getMessage());
+			throw new DBException(e);
+
+		} finally {
+			if (pstm != null) {
+				try {
+					pstm.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					// non faccio nulla
+				}
+			}
+		}
+		
 	}
 
 }
