@@ -7,6 +7,7 @@ import it.pota.coin.potacoin.dto.BuonoAssegnato;
 import it.pota.coin.potacoin.dto.Cliente;
 import it.pota.coin.potacoin.dto.Errore;
 import it.pota.coin.potacoin.dto.Esercente;
+import it.pota.coin.potacoin.dto.News;
 
 public class ClienteResponse extends AbstractResponse {
 	private Cliente cliente;
@@ -14,6 +15,8 @@ public class ClienteResponse extends AbstractResponse {
 	private ArrayList<Buono> buonipreferiti;
 	private ArrayList<Buono> buoni;
 	private ArrayList<Esercente> esercenti;
+	private ArrayList<News> news;
+	private String messaggio;
 
 	public ClienteResponse() {
 		super();
@@ -59,5 +62,22 @@ public class ClienteResponse extends AbstractResponse {
 		this.esercenti = esercenti;
 	}
 
+	public ArrayList<News> getNews() {
+		return news;
+	}
+
+	public void setNews(ArrayList<News> news) {
+		this.news = news;
+	}
+
+	public String getMessaggio() {
+		return messaggio;
+	}
+
+	public void setMessaggio(String messaggio) {
+		this.messaggio = messaggio;
+	}
+
+	
 	
 }
