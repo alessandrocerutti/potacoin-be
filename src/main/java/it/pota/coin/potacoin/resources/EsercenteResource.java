@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -14,6 +15,7 @@ import it.pota.coin.potacoin.dto.BuonoAssegnato;
 import it.pota.coin.potacoin.dto.Credenziali;
 import it.pota.coin.potacoin.dto.Errore;
 import it.pota.coin.potacoin.dto.Esercente;
+import it.pota.coin.potacoin.dto.News;
 import it.pota.coin.potacoin.exception.DBException;
 import it.pota.coin.potacoin.response.EsercenteRequest;
 import it.pota.coin.potacoin.response.EsercenteResponse;
@@ -138,7 +140,7 @@ public class EsercenteResource {
 		return Response.ok(resp).header("Access-Control-Allow-Origin", "*").build();
 
 	}
-	
+
 	@POST
 	@Path("/controllobuoniassegnati")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -175,13 +177,13 @@ public class EsercenteResource {
 
 		return Response.ok(esercenteResp).header("Access-Control-Allow-Origin", "*").build();
 	}
-	
-	@POST 
+
+	@POST
 	@Path("/ottieniallbuoni")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response ottieAllBuoni(EsercenteRequest re) {
-		
+
 		String token = re.getToken();
 		Errore er = new Errore();
 		EsercenteResponse esercenteResp = new EsercenteResponse();
@@ -209,14 +211,139 @@ public class EsercenteResource {
 				esercenteResp.setErrore(er);
 			}
 		}
-		
+
 		return Response.ok(esercenteResp).header("Access-Control-Allow-Origin", "*").build();
 
 	}
-	
-	
-	
-	
-	
+
+	@POST
+	@Path("/aggiunginews")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response inserisciNews(EsercenteRequest re) {
+
+		String token = re.getToken();
+		Errore er = new Errore();
+		EsercenteResponse esercenteResp = new EsercenteResponse();
+
+		if ("".equals(token)) {
+			er.setId(1);
+			er.setMsg("forbitten");
+			esercenteResp.setErrore(er);
+		} else {
+			if (SecurityUtil.controllaToken(token)) {
+
+				try {
+					News news = re.getNews();
+					System.out.println(re.getNews());
+					es.aggiungiNews(news);
+
+				} catch (Exception e) {
+					er.setId(2);
+					er.setMsg(e.getClass().getName());
+					System.out.println(er.getMsg());
+					esercenteResp.setErrore(er);
+				}
+			} else {
+				er.setId(1);
+				er.setMsg("forbitten");
+				esercenteResp.setErrore(er);
+			}
+		}
+
+		return Response.ok(esercenteResp).header("Access-Control-Allow-Origin", "*").build();
+
+	}
+
+	@POST
+	@Path("/inserisciscontrino")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response inserisciScontrino(EsercenteRequest re) {
+
+		String token = re.getToken();
+		Errore er = new Errore();
+		EsercenteResponse esercenteResp = new EsercenteResponse();
+
+		if ("".equals(token)) {
+			er.setId(1);
+			er.setMsg("forbitten");
+			esercenteResp.setErrore(er);
+		} else {
+			if (SecurityUtil.controllaToken(token)) {
+				int id = SecurityUtil.getTokenBody(token);
+
+				try {
+					es.inserisciNuovoScontrino(re.getScontrino(), id);
+
+				} catch (Exception e) {
+					er.setId(2);
+					er.setMsg(e.getClass().getName());
+					System.out.println(er.getMsg());
+					esercenteResp.setErrore(er);
+				}
+			} else {
+				er.setId(1);
+				er.setMsg("forbitten");
+				esercenteResp.setErrore(er);
+			}
+		}
+
+		return Response.ok(esercenteResp).header("Access-Control-Allow-Origin", "*").build();
+
+	}
+
+	@POST
+	@Path("/riscossioneBuono")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response riscossioneBuono(EsercenteRequest esercReq) {
+
+		Errore er = new Errore();
+		Errore erroreRiscossione;
+		EsercenteResponse esercResp = new EsercenteResponse();
+		String tkn = esercReq.getToken();
+		BuonoAssegnato ba = esercReq.getBuonoassegnato();
+		System.out.println("il buono passato ha : " + ba);
+
+		if ("".equals(tkn)) {
+			er.setId(1);
+			er.setMsg("forbitten");
+
+			esercResp.setErrore(er);
+		} else {
+
+			if (SecurityUtil.controllaToken(tkn)) {
+
+				try {
+
+					// controllo che il buonoAssegnato passato corrisponda a 1 di qlli nel DB
+					// controllo che la data di scadenza sia >= di oggi
+					// setto ad 1 il campo usato dentro al
+
+					erroreRiscossione = es.riscuotiBuono(ba);
+
+					if (erroreRiscossione != null) {
+
+						esercResp.setErrore(erroreRiscossione);
+					} else {
+						esercResp.setMessaggio("Riscossione buono avvenuta con successo!");
+					}
+
+				} catch (DBException e) {
+					er.setId(2);
+					er.setMsg(e.getMessage());
+					esercResp.setErrore(er);
+					e.printStackTrace();
+				}
+			} else {
+				er.setId(1);
+				er.setMsg("forbitten");
+				esercResp.setErrore(er);
+			}
+		}
+		return Response.ok(esercResp).header("Access-Control-Allow-Origin", "*").build();
+
+	}
 
 }
